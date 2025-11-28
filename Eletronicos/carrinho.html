@@ -1,0 +1,161 @@
+include "db_connect.php";
+
+
+<!DOCTYPE html>
+
+<html lang="pt-BR">
+
+<head>
+    
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">  
+
+<title>Carrinho - CloverTech</title>
+
+<style>
+
+body {
+    background:#0d0d0d;
+    color:#eaeaea;
+    font-family:Segoe UI,Arial,sans-serif;
+    padding:20px
+}
+.container {
+    max-width:900px;
+    margin:20px auto
+}
+
+.item {
+    display:flex;
+    align-items:center;
+    gap:15px;
+    background:#111;
+    padding:12px;
+    border-radius:10px;
+    margin-bottom:12px;
+    border:1px solid #00ffff22
+}
+
+.item img {
+    width:80px;
+    height:80px;
+    object-fit:cover;
+    border-radius:8px
+}
+
+.remove {
+    margin-left:auto;
+    background:#00ffff;
+    color:#0d0d0d;
+    border:none;
+    padding:8px 12px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:700
+}
+
+.total {
+    text-align:right;
+    color:#00ffff;
+    font-weight:800;
+    margin-top:10px
+}
+
+a.voltar {
+    display:inline-block;
+    margin-top:18px;
+    padding:10px 16px;
+    background:#00ffff;
+    color:#0d0d0d;
+    border-radius:10px;
+    text-decoration:none;
+    font-weight:700
+}
+
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1 style="color:#00ffff">🛒 Meu Carrinho</h1>
+
+<div id="carrinho-container"></div>
+
+<a class="voltar" href="index.html">⬅ Voltar à loja</a>
+
+<button id="btn-finalizar" 
+        style="margin-top:20px;padding:12px 25px;background:#00ffff;color:#0d0d0d;
+               border:none;border-radius:25px;font-weight:700;cursor:pointer;
+               display:block;margin-left:auto;margin-right:auto;">
+  💳 Finalizar Compra
+
+</button>
+
+
+</div>
+
+<script>
+function carregarCarrinho() {
+  const carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+  const container = document.getElementById('carrinho-container');
+  if (carrinho.length === 0) {
+    container.innerHTML = '<h2>Seu carrinho está vazio.</h2>';
+    return;
+  }
+  container.innerHTML = '';
+
+  let total = 0;
+
+  carrinho.forEach((p,index) => {
+    total += p.preco;
+
+    const item = document.createElement('div');
+
+    item.className = 'item';
+
+    item.innerHTML = `<img src="${p.imagemURL}">
+    <div>
+        <h3 style="color:#00ffff">${p.nome}</h3>
+        <p>R$ ${p.preco}</p>
+    </div>
+    <button class="remove" onclick="remover(${index})">Remover</button>`;
+
+    
+    container.appendChild(item);
+
+
+  });
+  const tot = document.createElement('div');
+  tot.className = 'total';
+  tot.innerText = 'Total: R$ ' + total;
+  container.appendChild(tot);
+}
+function remover(index) {
+  const carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+  carrinho.splice(index,1);
+  localStorage.setItem('carrinho', JSON.stringify(carrinho));
+  carregarCarrinho();
+  try { localStorage.setItem('carrinho_updated','' + Date.now()); } catch(e){}
+}
+carregarCarrinho();
+
+// Botão de finalizar compra
+document.getElementById("btn-finalizar").addEventListener("click", function() {
+    const carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+
+    if (carrinho.length === 0) {
+        alert("Seu carrinho está vazio!");
+        return;
+    }
+
+    const total = carrinho.reduce((acc, item) => acc + item.preco, 0);
+    localStorage.setItem("totalCompra", total);
+
+    window.location.href = "checkout.html"; // Página de pagamento
+});
+
+
+
+</script>
+</body>
+</html>

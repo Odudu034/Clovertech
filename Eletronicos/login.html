@@ -1,0 +1,95 @@
+include "db_connect.php";
+
+<!DOCTYPE html>
+
+<html lang='pt-BR'>
+
+<head> 
+  <meta charset='utf-8'>
+  <meta name='viewport' content='width=device-width,initial-scale=1'>
+
+  <title>Login - CloverTech</title>
+
+<style>
+body {
+  background:#0d0d0d;
+  color:#eaeaea;
+  font-family:Segoe UI;
+  padding:20px
+  } 
+
+.box {
+  max-width:380px;
+  margin:60px auto;
+  background:#111;
+  padding:20px;
+  border-radius:12px;
+  border:1px solid #00ffff33
+  }
+input {
+  width:100%;
+  padding:10px;
+  margin:8px 0;
+  border-radius:8px;
+  border:2px solid #00ffff;
+  background:#0d0d0d;
+  color:#00ffff
+  }
+button {
+  width:100%;
+  padding:10px;
+  background:#00ffff;
+  color:#0d0d0d;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:700
+  }
+
+</style>
+</head>
+<body>
+
+<div class='box'>
+
+<h2 style='color:#00ffff;text-align:center'>Login</h2>
+
+<input id='email' placeholder='Email' type='email'>
+<input id='senha' placeholder='Senha' type='password'>
+
+<button onclick='login()'>Entrar</button>
+
+<p style='text-align:center;margin-top:10px'><a href='registro.html' style='color:#00ffff'>Criar conta</a></p>
+
+
+</div>
+
+<script>
+  
+function login(){
+  const email = document.getElementById('email').value.trim();
+  const senha = document.getElementById('senha').value.trim();
+  if(!email || !senha){ alert('Preencha todos os campos'); return; }
+
+  // Comunicação com o backend PHP
+  fetch('login.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: `email=${encodeURIComponent(email)}&senha=${encodeURIComponent(senha)}`
+  })
+  .then(response => response.json())
+  .then(data => {
+      alert(data.message);
+      if(data.success) {
+          // O backend (PHP) lida com a sessão, mas o JS armazena o nome/email localmente para exibição rápida na tela
+          localStorage.setItem('logado', JSON.stringify({nome: data.usuario.nome, email: data.usuario.email}));
+          window.location.href='index.html';
+      }
+  })
+  .catch(error => {
+      console.error('Erro de comunicação:', error);
+      alert('Erro de comunicação com o servidor. Verifique o XAMPP.');
+  });
+}
+</script>
+</body></html>

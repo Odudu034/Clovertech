@@ -1,0 +1,337 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>CloverTech - Marketplace</title>
+
+<style>
+*{box-sizing:border-box;font-family:Segoe UI,Arial,sans-serif}
+body {
+    background:#0d0d0d;
+    color:#eaeaea;
+    margin:0
+}
+aside {
+    width:230px;
+    background:#111;
+    position:fixed;
+    top:0;
+    bottom:0;
+    left:0;
+    padding-top:40px;
+    border-right:1px solid #00ffff33
+}
+
+.content {
+    margin-left:230px;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column
+}
+
+header {
+    background:#111;
+    padding:15px 40px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    border-bottom:1px solid #00ffff44;
+    position:sticky;
+    top:0;z-index:10
+}
+
+.hero {
+    text-align:center;
+    margin:30px auto;
+    padding:40px 20px;
+    width:90%;
+    border-radius:12px;
+    background:linear-gradient(#0d0d0d,#1a1a1a)
+}
+
+main#lista-produtos {
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:20px;width:90%;
+    margin:30px auto
+}
+
+.produto {
+    background:#1a1a1a;
+    padding:18px;
+    border-radius:12px;
+    text-align:center;
+    border:1px solid #00ffff22}
+
+.produto img {
+    width:100px;
+    height:100px;
+    object-fit:cover;
+    margin-bottom:8px
+}
+
+#carrinho {
+    display:inline-block;
+    margin:20px auto 40px;
+    padding:10px 22px;
+    background:#00ffff;color:#0d0d0d;
+    border-radius:25px;
+    text-decoration:none;
+    font-weight:700
+}
+
+button.add {
+    background:#00ffff;color:#0d0d0d;
+    border:none;
+    padding:8px 12px;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:700
+}
+
+.login-info {
+    color:#ffffff
+}
+
+.cat {
+  background: transparent;
+  border: 2px solid #00ffff;
+  color: #00ffff;
+  padding: 10px;
+  width: 100%;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.cat:hover {
+  background: #00ffff;
+  color: #0d0d0d;
+  box-shadow: 0 0 10px #00ffff;
+}
+
+.cat.active {
+  background: #00ffff;
+  color: #0d0d0d;
+}
+
+
+
+</style>
+</head>
+<body>
+
+<aside>
+  <h2 style="color:#00ffff;text-align:center">Categorias</h2>
+  <div style="display:flex;flex-direction:column;gap:10px;padding:0 10px">
+    <button onclick="filtrar('todos')" class="cat">Todos</button>
+    <button onclick="filtrar('smartphones')" class="cat">Smartphones</button>
+    <button onclick="filtrar('notebooks')" class="cat">Notebooks</button>
+    <button onclick="filtrar('tablets')" class="cat">Tablets</button>
+    <button onclick="filtrar('acessorios')" class="cat">Acessórios</button>
+  </div>
+</aside>
+
+<div class="content">
+  <header>
+    <h1 style="color:#00ffff;display:flex;align-items:center;gap:8px">🍀 CloverTech</h1>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="login-info" id="user-name"></div>
+      <input id="busca" placeholder="Buscar produtos..." style="padding:8px 12px;border-radius:20px;border:2px solid #00ffff;background:#0d0d0d;color:#00ffff;outline:none">
+      <button onclick="buscarProdutos()" style="padding:8px 14px;border-radius:20px;background:#00ffff;color:#0d0d0d;border:none;cursor:pointer">Buscar</button>
+      <a id="link-login" href="login.html" style="color:#00ffff;margin-left:8px;text-decoration:none">Login</a>
+      <a id="link-logout" href="#" style="color:#00ffff;margin-left:8px;text-decoration:none;display:none">Logout</a>
+    </div>
+  </header>
+
+  <section class="hero">
+    <h2 style="color:#00ffff">Bem-vindo ao Maior Marketplace de Eletrônicos</h2>
+    <p style="color:#ffffff">Encontre os melhores produtos com os melhores preços!</p>
+  </section>
+
+  <main id="lista-produtos"></main>
+
+  <a id="carrinho" href="carrinho.html">🛒 Carrinho (<span id="carrinho-count">0</span>)</a>
+
+  <footer style="text-align:center;padding:30px;margin-top:30px;color:#aaa">© 2025 CloverTech - Desenvolvido com 💚</footer>
+</div>
+
+<script>
+const produtos = 
+[{"id": 1, "nome": "Apple Smartphone ", "categoria": "smartphones", "preco": 8400, "marca": "Apple", "imagemURL": "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcQ6Cdkgu4BZgAwFpvCrbnP24tuOeZZgMKiAmWadpjhNDjWuup16ANs89GNpqFRt"},
+{"id": 2, "nome": "Samsung Smartphone  ", "categoria": "smartphones", "preco": 4300, "marca": "Samsung", "imagemURL": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcSuoWl8GvIcknIVuKhA_TgeVsdvjP4o7SjFHU0y-beh1od5ymDuXs_hnuTG4j7E"},
+{"id": 3, "nome": "Xiaomi Smartphone  ", "categoria": "smartphones", "preco": 3500, "marca": "Xiaomi", "imagemURL": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcR0Df3lQWfTQIKFsoFVepg6s3p_TwU6adXkpeRGECxudX7UpZCkwUq-gmU8z13d"},
+{"id": 4, "nome": "Motorola Smartphone  ", "categoria": "smartphones", "preco": 4910, "marca": "Motorola", "imagemURL": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcQ-gBN1ETZr-zkIsET1hAftO5bh_laljr3YuspSU_233w7FXNI6LbkDcLhCOt2V"},
+{"id": 5, "nome": "Google Smartphone  ", "categoria": "smartphones", "preco": 5640, "marca": "Google", "imagemURL": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTreFSOkZNQ8zHGcMwyLfmgTtk_q9KdYe7RnsLAGTkUbGqXBXvq0aN25Wg61K9W"},
+{"id": 6, "nome": "ASUS Smartphone  ", "categoria": "smartphones", "preco": 6370, "marca": "ASUS", "imagemURL": "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcQdEmEgLz7dTaxETVQ38_ZDJv6OrdPkd1fOM7CSYfE2_W82GQNvEGA5eL9lOMwl"},
+{"id": 7, "nome": "Realme Smartphone  ", "categoria": "smartphones", "preco": 7100, "marca": "Realme", "imagemURL": "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcT16bmZQmf6EBONtGFBScttsOrG9Vi335zo6jriNth3OYSV6DwBGHMLPZAs21rH"},
+{"id": 8, "nome": "Apple Smartphone  ", "categoria": "smartphones", "preco": 7830, "marca": "Apple", "imagemURL": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcS1PxTQm2l7Bzq-jsKJz6Tv2REzHolz13sMXwzJzZ-2CtqRSu4wxuveJtvF0ymj"},
+{"id": 9, "nome": "Samsung Smartphone  ", "categoria": "smartphones", "preco": 8560, "marca": "Samsung", "imagemURL": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcQnFeU-e4a5s2NiaFVSCQ47MGQQKcTkUJlciTwXpgFridlUjZ-hY98hWVk0gOgI"},
+{"id": 10, "nome": "Xiaomi Smartphone  ", "categoria": "smartphones", "preco": 9290, "marca": "Xiaomi", "imagemURL": "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcSHXS6KnH1R4J08MpvVPj7un20pbwJgrjTM-LOXgpjjwAM9mm46hU1HF_2T0vcM"},
+{"id": 11, "nome": "Motorola Smartphone  ", "categoria": "smartphones", "preco": 4002, "marca": "Motorola", "imagemURL": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSp99RLjNnwsfGcptyZU0fMAgM6qHYjEhbkdc36isPKNMX69D266T1oJseeAB-U"},
+{"id": 12, "nome": "Google Smartphone  ", "categoria": "smartphones", "preco": 3075, "marca": "Google", "imagemURL": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcQcVP-LDlRAxLGfL8szVXGUPEJNCeELdNAbYbT-fX-XgWk9SkXLcs7c6O5NlkMY"},
+{"id": 13, "nome": "ASUS Smartphone  ", "categoria": "smartphones", "preco": 4148, "marca": "ASUS", "imagemURL": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcS-rfSoAbTWrh7FXYPRoaRrwaPocPE6U8n4orCrGJXdR-oEM4EWE7idwiYV4NpV"},
+{"id": 14, "nome": "Realme Smartphone  ", "categoria": "smartphones", "preco": 3221, "marca": "Realme", "imagemURL": "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcRHvGwES_Zx8ASv7heyq_8Dz6lZmH7q3oC4lVs0Dy3Jz0zUYksNmnGTnwmQUN8T"},
+{"id": 15, "nome": "Apple Smartphone  ", "categoria": "smartphones", "preco": 3294, "marca": "Apple", "imagemURL": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTgyaZjg1eDknZPAE78q9MmDJJ-GQMjEFCEXI89cIEkFpBBVfcN5ch1oAnJhrIa"},
+{"id": 16, "nome": "Samsung Smartphone  ", "categoria": "smartphones", "preco": 3367, "marca": "Samsung", "imagemURL": "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcQEBZQQFVO1BlMtj7mGmTqy9lNjgQNdeX2M1eJMNoZm0LYAx6xYfbF7xwK8Ya0h"},
+{"id": 17, "nome": "Xiaomi Smartphone  ", "categoria": "smartphones", "preco": 4440, "marca": "Xiaomi", "imagemURL": "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcStSTeICLMwgM3zM69E9CXG4V8W8gw_p1elZx28rNG6T0K8m0T5-Tfc4gCjSSRk"},
+{"id": 18, "nome": "Motorola Smartphone  ", "categoria": "smartphones", "preco": 3513, "marca": "Motorola", "imagemURL": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcQYkfzvvsZQi2m9jajP4YtjQ3z2Zsfo6_wwuc6t3S5n4JlPJawM3D7r9leF8N-N"},
+{"id": 19, "nome": "Google Smartphone  ", "categoria": "smartphones", "preco": 4586, "marca": "Google", "imagemURL": "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcQB3HhvAe81aOQHl7d-Z1SJcqgJSDAgi6EWlrA3xP6Im0fNy9vZO3vEHUJRJkX_"},
+{"id": 20, "nome": "ASUS Smartphone  ", "categoria": "smartphones", "preco": 3659, "marca": "ASUS", "imagemURL": "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcTTgQdoqCPbtb6raeQpypM13mkp2idI2cPPGeigvNXE6-1MqcEJCJ6zXxIt8bSr"},
+{"id": 21, "nome": "Realme Smartphone  ", "categoria": "smartphones", "preco": 3732, "marca": "Realme", "imagemURL": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRPzruM9kr3gn7t_w0FvP5imU6PO5pT-l_UsGRb4QTm22BEfNp6pgCL51hYFwiu"},
+{"id": 22, "nome": "Apple Smartphone  ", "categoria": "smartphones", "preco": 4805, "marca": "Apple", "imagemURL": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcRi5xzCMBsNSqHuIbegmfOl0cxfyoZ_XZoEZ9A5MYpNwjaGOyDTBNv6dNQEJHpj"},
+{"id": 23, "nome": "Samsung Smartphone  ", "categoria": "smartphones", "preco": 4878, "marca": "Samsung", "imagemURL": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcSR1DmB8kFwE5fLWFmh2XKjH2hu6aZsDUnyD_tUwOhUuTTl7XKQu1k3DxRUl1hg"},
+{"id": 24, "nome": "Xiaomi Smartphone  ", "categoria": "smartphones", "preco": 5951, "marca": "Xiaomi", "imagemURL": "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcSMsDxhEkkKFv6K54YIH3p94Mr6-Hlp0ZPhkrX4WpFPDkcUTxuYrjQIORF7XPgt"},
+{"id": 25, "nome": "Motorola Smartphone ", "categoria": "smartphones", "preco": 2024, "marca": "Motorola", "imagemURL": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT6cor23Ot57ZUj7Yi-N_2DAxG7QafBDi248Z0gTZqqH2wehi_dQWYRzc0mBwZl"},
+
+{"id": 26, "nome": "Apple Notebook  ", "categoria": "notebooks", "preco": 2097, "marca": "Apple", "imagemURL": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcR2lwehc501-RVsIQX_vXewjCcpewAEcohDfvXwlT9w0G7cVjFzexdC48kfVhNP"},
+{"id": 27, "nome": "Dell Notebook  ", "categoria": "notebooks", "preco": 2170, "marca": "Dell", "imagemURL": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQnFaK65DGFjur3wyfs_1nvsjwiHSBpw1SlvpUXhVcUSiho76RnexVLuZ7YOiN"},
+{"id": 28, "nome": "ASUS Notebook  ", "categoria": "notebooks", "preco": 2243, "marca": "ASUS", "imagemURL": "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRR3dhncLQFPGAB9uNw6WmLuE0Nqa4CNNkH2xREqLEmiKG9HIwd3zVKHyFj8frb"},
+{"id": 29, "nome": "Lenovo Notebook  ", "categoria": "notebooks", "preco": 2316, "marca": "Lenovo", "imagemURL": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcQX3-8HMBeFmA3PjHeUCZbN8BaYjVYs8F21aoDY9I_lxo8iu3ZLzBuWHt23e7KO"},
+{"id": 30, "nome": "Acer Notebook  ", "categoria": "notebooks", "preco": 2389, "marca": "Acer", "imagemURL": "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcQzrPVLuiAARYPCP6aGqfd9Q3Zy5w27rmNnW5-CUoQn9ogk3VQdXdf7YIDDXua1"},
+{"id": 31, "nome": "Samsung Notebook  ", "categoria": "notebooks", "preco": 2462, "marca": "Samsung", "imagemURL": "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcQ6XNKmfptaApxJ6nRP8UC3Lm7pyXmT4_iU58RbKz8aVxW2V8bYO864F66kzaiJ"},
+{"id": 32, "nome": "Apple Notebook  ", "categoria": "notebooks", "preco": 2535, "marca": "Apple", "imagemURL": "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcQwcm_yy93hW2AjG5p4jots-_ce-yEb3_5Sd5HxsMsklYJLJliP78dA_QNuacII"},
+{"id": 33, "nome": "Dell Notebook  ", "categoria": "notebooks", "preco": 2608, "marca": "Dell", "imagemURL": "https://encrypted-tbn3.gstatic.com/licensed-image?q=tbn:ANd9GcTw9Plthgk9FyecUEf1rQpobGtSQau5GPt5_SFMlo38KaDat2tXPxmyKTMNCyoqdy9Zku7TVG2OdM1Bd0UAEPvXOWpw4M0dAuQ2Hr2pYsWd7g56AhY"},
+{"id": 34, "nome": "ASUS Notebook  ", "categoria": "notebooks", "preco": 2681, "marca": "ASUS", "imagemURL": "https://encrypted-tbn3.gstatic.com/licensed-image?q=tbn:ANd9GcTtLXmn8IKro6rJ4AoCJ7MBq6Ylo2Pr5R2eR21hwywEc06N2SkD4M2kIEP2Abqu-g4YCzzQJsxR50URcLUsvhrxWxzz-yXeHZZosCeyl8bXhJQI400"},
+{"id": 35, "nome": "Lenovo Notebook  ", "categoria": "notebooks", "preco": 2754, "marca": "Lenovo", "imagemURL": "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcQNL4xqNEMZw43AH6gYqIZbHOJKpwamJCS26NVaKesmo0wUrFewYrM75HYYBH-1"},
+{"id": 36, "nome": "Acer Notebook  ", "categoria": "notebooks", "preco": 2827, "marca": "Acer", "imagemURL": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcTflVG6oX2RHrrAZf52qw7ViPicEtsh7Vt0iMLB6MCxCbzkxgDNeT6vuCCMEqYl"},
+{"id": 37, "nome": "Samsung Notebook  ", "categoria": "notebooks", "preco": 2900, "marca": "Samsung", "imagemURL": "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcTrL4z2RJXjjU_2p-y1HHpfO-DGZzrhGeiFRqMNf9HVq6i21amCKXml9nNJeV2m"},
+{"id": 38, "nome": "Apple Notebook  ", "categoria": "notebooks", "preco": 2973, "marca": "Apple", "imagemURL": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcRHHstbg83uB9Fp-XrCfYnQrzml2fAIrWx2zFImdZEbhpG2hd3zWBw677kc4QSa"},
+{"id": 39, "nome": "Dell Notebook  ", "categoria": "notebooks", "preco": 3046, "marca": "Dell", "imagemURL": "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcSjWEqjE84RN7CDpMmgNSBET2O2w81xLilRLcuG-dj4ysO386gOFSz9Wf0WR1qI"},
+{"id": 40, "nome": "ASUS Notebook ", "categoria": "notebooks", "preco": 3119, "marca": "ASUS", "imagemURL": "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcRdXWuxCwFz13-Pwi3NB2sTyUOpMIiatORCX17ZGJJHKUpoXzMXfNIOv1oMO-mi"},
+
+{"id": 41, "nome": "Lenovo Notebook  ", "categoria": "notebooks", "preco": 3192, "marca": "Lenovo", "imagemURL": "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcTE9yyEu5Utd8oWvTgrcz8xRmsZmTgU8RaLpkuFuU3ntpWlNIBVUobReETxmdoT"},
+{"id": 42, "nome": "Acer Notebook  ", "categoria": "notebooks", "preco": 3265, "marca": "Acer", "imagemURL": "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRyxQo_PLxb_sEnHj9zXEpM940M_S-0-HN4umjF8vpAm1tfV8JOM0k2K8-NVzam"},
+{"id": 43, "nome": "Samsung Notebook  ", "categoria": "notebooks", "preco": 3338, "marca": "Samsung", "imagemURL": "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcSr5pp2xGSK-Jd3brTGdjklyDEDrC0tpUXlryiYjF3UGlGfu92MrvQKV7SulClo"},
+{"id": 44, "nome": "Apple Notebook  ", "categoria": "notebooks", "preco": 3411, "marca": "Apple", "imagemURL": "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcR3RXMC3FfUqBjN3CQU_U0dSC0K5EBlfc61MuMX3u_XKUm7xi_zuJrXKA2a4HvW"},
+{"id": 45, "nome": "Dell Notebook  ", "categoria": "notebooks", "preco": 3484, "marca": "Dell", "imagemURL": "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcS6UM4xloy06fV4NxlER5InBpt7hPt82m_l4TMU4_Nuh-uz6j_kV0LpKfdb7fEB"},
+{"id": 46, "nome": "ASUS Notebook  ", "categoria": "notebooks", "preco": 3557, "marca": "ASUS", "imagemURL": "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcR2R43QlHwIIhF5ipKatCzbl_gI0-kX29GP4wuFhNj9uCgmcsJA8GXgOOHYyIOJ"},
+{"id": 47, "nome": "Lenovo Notebook  ", "categoria": "notebooks", "preco": 3630, "marca": "Lenovo", "imagemURL": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcTF0J3c1nzgqRVEa5Nty5UyLm-dSgqllRJptkk4T3-2OP6ejvOb6_QRhAYKi-Vv"},
+{"id": 48, "nome": "Acer Notebook ", "categoria": "notebooks", "preco": 3703, "marca": "Acer", "imagemURL": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcRP9aDr1KV_hYR5-T1DjKcq2VYb34M9C0uPLoEFLxV0Bb-eE39mknAdf5ra75VC"},
+{"id": 49, "nome": "Samsung Notebook  ", "categoria": "notebooks", "preco": 3776, "marca": "Samsung", "imagemURL": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcT_qA2XJkoMAY7Gzr5zQ_y2NW5K5di04du41MvvCZF3rUid6pAFZ_FRFcH-jAe9"},
+{"id": 50, "nome": "Apple Notebook  ", "categoria": "notebooks", "preco": 3849, "marca": "Apple", "imagemURL": "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcS4A40RWMES_5UWeAs4oGg6bzi-APTxFhALF8H5ZJFdru3VE2IDgH5zEorWaDLs"},
+
+{"id": 51, "nome": "Apple Tablet  ", "categoria": "tablets", "preco": 3922, "marca": "Apple", "imagemURL": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTHUoFgGWlmDBEOHEaRun_S8CAAHO8d9myUUDqq2W9MlET5U6cdvo6JfkouobxE"},
+{"id": 52, "nome": "Samsung Tablet  ", "categoria": "tablets", "preco": 3995, "marca": "Samsung", "imagemURL": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRLFA9DLKdNk9tdnqbRC5uaTtTCO-Xypc4XiFxJ9vAUuP2Sm53AL8zQH3Q580x4"},
+{"id": 53, "nome": "Xiaomi Tablet  ", "categoria": "tablets", "preco": 4068, "marca": "Xiaomi", "imagemURL": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQWsJqNyL9xRv_jTPivddPoG89x38rCku1iFOgs6IttIwlj_lDSd41cVd_OrxC4"},
+{"id": 54, "nome": "Lenovo Tablet  ", "categoria": "tablets", "preco": 4141, "marca": "Lenovo", "imagemURL": "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcT8f8_HM72r8myx7B302rErIwQLQU3ZNZuoFmbnOZ7ZKnItgshWdMVt2_gbP0an"},
+{"id": 55, "nome": "Microsoft Tablet  ", "categoria": "tablets", "preco": 4214, "marca": "Microsoft", "imagemURL": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTFq3WlHAuEo6igQHSgDBfDxqCYV9_YwQdYb8mGVOLuF-nsJVZjjzwGNNLRFwWm"},
+{"id": 56, "nome": "Amazon Tablet  ", "categoria": "tablets", "preco": 4287, "marca": "Amazon", "imagemURL": "https://encrypted-tbn0.gstatic.com/licensed-image?q=tbn:ANd9GcTDcy9wj7WjP_9N_H7YXhOIgWD3dBfJzHZFUmqtqh1UNf0nUGEKFvKcw2sllGMxI21Nt23YB9p1lyEk-iGJvFYLrEX-OWB0WclvMKYBNW7mv2DGVes"},
+{"id": 57, "nome": "Apple Tablet  ", "categoria": "tablets", "preco": 4360, "marca": "Apple", "imagemURL": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQUQ6fl88ID4KbJdum7ENLn_iOpTNs-fpQiAWSr49efa6DaDgA7H0pGC-4MkwHd"},
+{"id": 58, "nome": "Samsung Tablet  ", "categoria": "tablets", "preco": 4433, "marca": "Samsung", "imagemURL": "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcRapaUYyhc3SQrXQzmUW2nudQOLTjOGtIQNTN9ZN6SzjZzUS86w0x5Dr2QuOaQB"},
+{"id": 59, "nome": "Xiaomi Tablet  ", "categoria": "tablets", "preco": 4506, "marca": "Xiaomi", "imagemURL": "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcT_Whh01c5Z2-dOS1Me-KOBl4RoPgnVJwCqDcEFceyuEEnG_8nK0XCoANZNzB7h"},
+{"id": 60, "nome": "Lenovo Tablet  ", "categoria": "tablets", "preco": 4579, "marca": "Lenovo", "imagemURL": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcScyIdH9Ulzl4AewYj5TJSn98Zv5jjG4RGflB5DGlP9CJKBo4WKqJuxNvce8_fm"},
+{"id": 61, "nome": "Microsoft Tablet  ", "categoria": "tablets", "preco": 4652, "marca": "Microsoft", "imagemURL": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQsWVr7IlGwlpm1I9rmmTfAj7GE2IIlMME9gf-bPYPAYB35BKac4ZQa4sqFlAxZ"},
+{"id": 62, "nome": "Amazon Tablet  ", "categoria": "tablets", "preco": 4725, "marca": "Amazon", "imagemURL": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcRLcmmdBMpwHwuzRRalO54lD1i0ES0001xxxWzVdnmPax_lk33W_SpElmUq6KnT"},
+{"id": 63, "nome": "Apple Tablet  ", "categoria": "tablets", "preco": 4798, "marca": "Apple", "imagemURL": "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcTWIdwLDjV_F6USqT4X_hUhlyvkYc9xbxSE1QD1TBYVav_fyGuLgbjgDHeu8eYo"},
+{"id": 64, "nome": "Samsung Tablet  ", "categoria": "tablets", "preco": 4871, "marca": "Samsung", "imagemURL": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcRp02nJ7tYKNQGXj7bvT-zN62rc-Kc7ZK9G3WcaJKD4aF3BcYGTDX33cFmBJxoH"},
+{"id": 65, "nome": "Xiaomi Tablet  ", "categoria": "tablets", "preco": 4944, "marca": "Xiaomi", "imagemURL": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQEJSEp8nMddapWA8mZa0fM1fcEZBMp3rtEcouPU4KjoUZGqSjsObuYWu8eF66r"},
+{"id": 66, "nome": "Lenovo Tablet  ", "categoria": "tablets", "preco": 5017, "marca": "Lenovo", "imagemURL": "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcTUOsCZ9vetk-hMsQ8YL5g8G-UsalpGoTJV8wiI1dBY2Cv95_HUwkwfinZ6P6pj"},
+{"id": 67, "nome": "Microsoft Tablet ", "categoria": "tablets", "preco": 5090, "marca": "Microsoft", "imagemURL": "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcS0GmN-4EwAQ7Qp6CMh0mCSzHZqoh5rE4_w8bnVZvgVaDGYsXjzZWEjOP7nAO0U"},
+{"id": 68, "nome": "Amazon Tablet  ", "categoria": "tablets", "preco": 5163, "marca": "Amazon", "imagemURL": "https://encrypted-tbn1.gstatic.com/licensed-image?q=tbn:ANd9GcQAi7-UII3yRxnu8D-NBmCXgLP2b0qRyB_eVGlz5usO3yLOs6x9aC3LyGzGWbUv7PP5X_nFxXJtdDpH9VFwcNEvVo0vTyThhW5uKiALZZXWku5gAn8"},
+{"id": 69, "nome": "Apple Tablet  ", "categoria": "tablets", "preco": 5236, "marca": "Apple", "imagemURL": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRQVTvc6Fen-iTUwBKHuJ6KP0duo-J5KZKBGafkqLG5Bo1JU-qKi6wsir7OgFtQ"},
+{"id": 70, "nome": "Samsung Tablet  ", "categoria": "tablets", "preco": 5309, "marca": "Samsung", "imagemURL": "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcTHxBlPuGZi7z_kXjyq2pVhMcMFU3CYqHFgUWOa_WGsmXMsSgCUGh6rLw_f8nYL"},
+{"id": 71, "nome": "Xiaomi Tablet  ", "categoria": "tablets", "preco": 5382, "marca": "Xiaomi", "imagemURL": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRF0OAQ2eeAFvKCytgyPfDXFV2gNGRcpMMV7KMz1lV9LfbMdt091ntQ1FB_Xn4r"},
+{"id": 72, "nome": "Lenovo Tablet  ", "categoria": "tablets", "preco": 5455, "marca": "Lenovo", "imagemURL": "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcRwb-h4jBLaxVlNsx8IBafqSBk5w2X3yFwr2ncYCkOvA9J37hoRaleQpbPMGmR7"},
+{"id": 73, "nome": "Microsoft Tablet  ", "categoria": "tablets", "preco": 5528, "marca": "Microsoft", "imagemURL": "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcTqutuowWiB3Us9DyO-hn6GuuadQh_hTyarSse_qnvToRAKG66Nzhl1jZX9W8fu"},
+{"id": 74, "nome": "Amazon Tablet  ", "categoria": "tablets", "preco": 5601, "marca": "Amazon", "imagemURL": "https://encrypted-tbn1.gstatic.com/licensed-image?q=tbn:ANd9GcREgc4uTEg5wtqIS5KX5H3G4Aktq7R48jmpDeoJb7HeHW60GnGdjEqnt6Srw6kTo8Cib-zcKj1ApYCva0ksrcgR1wM9YLqn9e9ditWOOTC0SgiQSqg"},
+{"id": 75, "nome": "Apple Tablet  ", "categoria": "tablets", "preco": 5674, "marca": "Apple", "imagemURL": "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRuLur-9fVQL198_TBfhMs8YEYq1Ls1v_tXrRESnQL298qcrpy9unBGD6gLetm7"},
+
+{"id": 76, "nome": "Apple Acessorio  ", "categoria": "acessorios", "preco": 747, "marca": "Apple", "imagemURL": "https://encrypted-tbn2.gstatic.com/licensed-image?q=tbn:ANd9GcS-sHPihR2V-5qE7E_kszXpJRmkixw9Y2oI9E4FqmS2TQ59xlZ88Q5NL3igChliLOuQOZlKKSura-Klrj2ymShey97Cvm8YJ5mIiaaFmzr-qGWE_jY"},
+{"id": 77, "nome": "Anker Acessorio  ", "categoria": "acessorios", "preco": 820, "marca": "Anker", "imagemURL": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcSLF3K0xtxN-7qm3uVyTJa-pGoqsucJDOKwuVbyDfF4Yi9yI59RMcWAsS32SDyv"},
+{"id": 78, "nome": "Logitech Acessorio  ", "categoria": "acessorios", "preco": 893, "marca": "Logitech", "imagemURL": "https://encrypted-tbn2.gstatic.com/licensed-image?q=tbn:ANd9GcSaq5PeGvi2g5ksFmcNF6PPL6GZQzzBlujtQtSYTy6G2R7Zsxb8nliHPU9lbzA-snGDn3f12r3YmgbGZ9WRx5JiWKGxcIfGmqlh74IqdyjNHeKxlAk"},
+{"id": 79, "nome": "JBL Acessorio  ", "categoria": "acessorios", "preco": 966, "marca": "JBL", "imagemURL": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcT5glj39MsEZgsi-DWMdmQ3Ek2mPkGz6hwt8p7HNBFXL015fM-soVb9zzKeq_89"},
+{"id": 80, "nome": "Sony Acessorio  ", "categoria": "acessorios", "preco": 739, "marca": "Sony", "imagemURL": "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcTbkO5uoX22h3QjmC4p5nKPzKhpan6savGs5Sm4dm-cB0X24MEY_hMsjsJx3Z5i"},
+{"id": 81, "nome": "Baseus Acessorio  ", "categoria": "acessorios", "preco": 112, "marca": "Baseus", "imagemURL": "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcQ09wvf6DXMqKaTirM2yjLAzbeMo-s47mWqe23BwvOP8fUR4bylSeoanpf9_WrK"},
+{"id": 82, "nome": "Razer Acessorio  ", "categoria": "acessorios", "preco": 185, "marca": "Razer", "imagemURL": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcQUy1lB5hDQpmCXzCAMvYtDfmnz4c9FNoGnahbP7N2pH-tJLrCP2FdKIYHUrIOf"},
+{"id": 83, "nome": "Apple Acessorio  ", "categoria": "acessorios", "preco": 258, "marca": "Apple", "imagemURL": "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcS-UhnCJm_oMA8TDXwR2TTT1FWwMFhco83TGxDPNPxudfJcMALuHJqQvYswKm_-"},
+{"id": 84, "nome": "Anker Acessorio ", "categoria": "acessorios", "preco": 331, "marca": "Anker", "imagemURL": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcSmsxCfDAwWIXsJfJuLRBS5wXakjklQh0V1E0_AnLfFCZvV3ArPyvaQpj1ziy4X"},
+{"id": 85, "nome": "Logitech Acessorio  ", "categoria": "acessorios", "preco": 404, "marca": "Logitech", "imagemURL": "https://encrypted-tbn3.gstatic.com/licensed-image?q=tbn:ANd9GcSHA7SXvr37GZgU3ngCZJN7spAFi4d9Vy7dxpHCrH-fxEv9IYqLoGYz1_l8z-PUD9h1k57qzjqDJ3BsziJqDKW1k_20O5vVxeyzFO9WQeaPTvNG02A"},
+{"id": 86, "nome": "JBL Acessorio  ", "categoria": "acessorios", "preco": 477, "marca": "JBL", "imagemURL": "https://encrypted-tbn2.gstatic.com/licensed-image?q=tbn:ANd9GcRyxPzq7P0r9P20021uDU-X5xPMdDLu-vitUYavS6BLyTGLSRnNczkPjEFvBhW82Ah2ezEh9fC3sHTuiAgcMOhlTAwAYjqq6oaSCZ4_0vHBJOPt3xw"},
+{"id": 87, "nome": "Sony Acessorio  ", "categoria": "acessorios", "preco": 550, "marca": "Sony", "imagemURL": "https://encrypted-tbn1.gstatic.com/licensed-image?q=tbn:ANd9GcSuB1pkrwoh0wz1yfGwSmtYvAX9TzmTRv-j-DlJByNYbP93ske8YmFQiUo15JP6RAaaiIPUPliNsl25EGg-i67pdFuHCG4vYyQSyXmeA54QIeV_48Y"},
+{"id": 88, "nome": "Baseus Acessorio  ", "categoria": "acessorios", "preco": 623, "marca": "Baseus", "imagemURL": "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcTyPS3oYV-OjuTPZSYyUmWA1VGW_3V9WEsFC010nXh-bmgTTFbDSZQBo0IUgtrY"},
+{"id": 89, "nome": "Razer Acessorio  ", "categoria": "acessorios", "preco": 696, "marca": "Razer", "imagemURL": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcStUoWroGsJBLXCyhREjSF71sVuGrRIqR3LC1XtzClPu2yEQF9EefilD0TucrGi"},
+{"id": 90, "nome": "Apple Acessorio  ", "categoria": "acessorios", "preco": 269, "marca": "Apple", "imagemURL": "https://encrypted-tbn2.gstatic.com/licensed-image?q=tbn:ANd9GcSLy_NWH1D8GYA-9sxI9d9QUe9V1D_gcm7WRcOR5WT0-mvhXiYi-Eeb4kg7LdV9_aouNzUtwjHTujdKQ6DcNWbDvXffgeoc02fqTfaTlacB2ptoN8k"},
+{"id": 91, "nome": "Anker Acessorio  ", "categoria": "acessorios", "preco": 842, "marca": "Anker", "imagemURL": "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcTldwu48e-OGnazBzX40yxqAs3zQltT4xDaN0-YVCj_Qsl6a4lmrJTR5Yj5YskJ"},
+{"id": 92, "nome": "Logitech Acessorio ", "categoria": "acessorios", "preco": 915, "marca": "Logitech", "imagemURL": "https://encrypted-tbn2.gstatic.com/licensed-image?q=tbn:ANd9GcTm1fxlb5wiQhjwhO6s6z8kEKXdAyhhdrswXaeG9q_Q0GJ8y00MD3h54feK7jb8cAJMgESEalRaJg0ljCXgkUCgxQ_EKYq3kjLlEgai9AUc-4Lm3Jo"},
+{"id": 93, "nome": "JBL Acessorio  ", "categoria": "acessorios", "preco": 988, "marca": "JBL", "imagemURL": "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcSCINgzX2vA6eHVU5vOQd6p5_EnBddBgeikW--qF4OkVfW1xBo4fSZ2ek5tA_hp"},
+{"id": 94, "nome": "Sony Acessorio  ", "categoria": "acessorios", "preco": 861, "marca": "Sony", "imagemURL": "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcT-nw9b8a_rDdP0fM7jWD0oaV_SrQ6UNA9i4idT2wuMgOMItMlhJIni8F3Aph1w"},
+{"id": 95, "nome": "Baseus Acessorio  ", "categoria": "acessorios", "preco": 134, "marca": "Baseus", "imagemURL": "https://encrypted-tbn1.gstatic.com/licensed-image?q=tbn:ANd9GcTtcwdd0U0AkNCxmU1rUHZfeUr4PVKfbgGTADXHobR4oDGzUomo1gir0W9USMEjpXaJrQo4rayC6UTzIuxXfMHjgwquHcegXjT5CJo99vNoD3i6VdI"},
+{"id": 96, "nome": "Razer Acessorio  ", "categoria": "acessorios", "preco": 207, "marca": "Razer", "imagemURL": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcRbo6U8PNIpQb82euGgkhcZixiwckzjptbcUipF-OVzjOy5qkfoHdSuQ8LWy2ic"},
+{"id": 97, "nome": "Apple Acessorio ", "categoria": "acessorios", "preco": 280, "marca": "Apple", "imagemURL": "https://encrypted-tbn0.gstatic.com/licensed-image?q=tbn:ANd9GcTdBbse8qmWYFYyJFV9c5LieH27yk25vju1HKiO6DCC6sU5UBjL5gnsAJBp-b64XfB4-GoNaMdN1BC2N6DmWsOP5dWsFtU5AtgHhNbmZEM_hgRQ70s"},
+{"id": 98, "nome": "Anker Acessorio  ", "categoria": "acessorios", "preco": 353, "marca": "Anker", "imagemURL": "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcTpzTBKQ8NjU5TorHsGY-VlFr5RP5WhueXiHTw3XXQZoPw9z2ACNT1UH-xK2L6C"},
+{"id": 99, "nome": "Logitech Acessorio  ", "categoria": "acessorios", "preco": 426, "marca": "Logitech", "imagemURL": "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcQfcEGze4iTpppjvl1YwTRp7NJzlg4KLP_8Icj1MRbQQoPyaMpf1YRouYmMWOxd"},
+{"id": 100, "nome": "JBL Acessorio  ", "categoria": "acessorios", "preco": 499, "marca": "JBL", "imagemURL": "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcToE60bQL7MNv5FDYs00YC3lrX4S0fAZNRCv8hVKa2oNHLOqZaBv2ZjxYJ7oZ6o"}]
+
+// utilities
+function mostrarProdutos(lista) {
+  const container = document.getElementById('lista-produtos');
+  container.innerHTML = '';
+  lista.forEach(p => {
+    container.innerHTML += `
+      <div class="produto">
+        <img src="${p.imagemURL}" alt="${p.nome}">
+        <h3 style="color:#00ffff">${p.nome}</h3>
+        <p style="font-weight:700">R$ ${p.preco}</p>
+        <button class="add" onclick="adicionarCarrinho(${p.id})">Adicionar</button>
+      </div>
+    `;
+  });
+}
+
+function atualizarContador() {
+  const carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+  document.getElementById('carrinho-count').innerText = carrinho.length;
+}
+
+function adicionarCarrinho(id) {
+  const produto = produtos.find(p => p.id === id);
+  if (!produto) return alert('Produto não encontrado');
+  const carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+  carrinho.push(produto);
+  localStorage.setItem('carrinho', JSON.stringify(carrinho));
+  atualizarContador();
+  alert('Produto adicionado ao carrinho!');
+}
+
+// filtering and search
+function filtrar(cat) {
+  if (cat === 'todos') mostrarProdutos(produtos);
+  else mostrarProdutos(produtos.filter(p => p.categoria === cat));
+}
+
+function buscarProdutos() {
+  const termo = document.getElementById('busca').value.toLowerCase();
+  mostrarProdutos(produtos.filter(p => p.nome.toLowerCase().includes(termo)));
+}
+
+// login display
+function atualizarUsuario() {
+  const usuario = JSON.parse(localStorage.getItem('logado')) || null;
+  const userName = document.getElementById('user-name');
+  const linkLogin = document.getElementById('link-login');
+  const linkLogout = document.getElementById('link-logout');
+  if (usuario) {
+    userName.innerText = 'Olá, ' + usuario.nome;
+    linkLogin.style.display = 'none';
+    linkLogout.style.display = 'inline';
+    linkLogout.onclick = () => { localStorage.removeItem('logado'); atualizarUsuario(); };
+  } else {
+    userName.innerText = '';
+    linkLogin.style.display = 'inline';
+    linkLogout.style.display = 'none';
+  }
+}
+
+// init
+mostrarProdutos(produtos);
+atualizarContador();
+atualizarUsuario();
+
+</script>
+</body>
+</html>
